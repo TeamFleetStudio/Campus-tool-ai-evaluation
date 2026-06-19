@@ -1,0 +1,77 @@
+[
+  {
+    "id": "problem-1",
+    "title": "Customer support drafting",
+    "difficulty": "beginner",
+    "problem_type": "prompt_only",
+    "approx_tokens": 120,
+    "problem_statement": "A customer emailed saying their subscription was charged twice this month. They want a refund for the duplicate charge and confirmation it won't happen again. Write a prompt that instructs an LLM to draft a professional, empathetic reply. The reply should acknowledge the issue, explain next steps, and ask for any info needed to process the refund. Tone: calm, not defensive. Max 150 words."
+  },
+  {
+    "id": "problem-2",
+    "title": "Meeting notes to action items",
+    "difficulty": "intermediate",
+    "problem_type": "prompt_only",
+    "approx_tokens": 200,
+    "problem_statement": "You have a raw transcript from a 30-minute product standup. Teams discussed three features, two blockers, and four action items — but the transcript is messy (crosstalk, incomplete sentences). Write a prompt that turns this transcript into structured output: a JSON object with summary (2-3 sentences), decisions (array), action_items (array of owner, task, due_date), and open_questions (array). The prompt must handle missing due dates gracefully and flag ambiguous owners."
+  },
+  {
+    "id": "problem-3",
+    "title": "Debug a Python function",
+    "difficulty": "intermediate",
+    "problem_type": "prompt_only",
+    "approx_tokens": 250,
+    "problem_statement": "The following Python function is supposed to return the top N most frequent words in a string (case-insensitive, ignoring punctuation). It has a bug — it returns wrong counts for some inputs. Write a prompt that asks an LLM to: (1) identify the bug, (2) explain why it fails, (3) provide a corrected version, and (4) suggest two test cases that would have caught the bug. Assume the buggy code will be pasted below your prompt. Do not solve it yourself in the submission — only write the prompt."
+  },
+  {
+    "id": "problem-4",
+    "title": "Executive summary from metrics",
+    "difficulty": "intermediate",
+    "problem_type": "prompt_only",
+    "approx_tokens": 280,
+    "problem_statement": "A CSV export contains monthly SaaS metrics: MRR, churn rate, new signups, support tickets, and NPS for the last 12 months. MRR grew overall but churn spiked in Q3. Write a prompt that produces a one-page executive summary for the CEO. The summary must: highlight the top 3 trends, call out Q3 churn as a concern, recommend 2-3 investigative questions (not solutions), and use plain language (no jargon). Include how the LLM should handle missing or anomalous data points."
+  },
+  {
+    "id": "problem-5",
+    "title": "Product launch tweet thread",
+    "difficulty": "intermediate",
+    "problem_type": "prompt_only",
+    "approx_tokens": 180,
+    "problem_statement": "Write a prompt for generating a 5-tweet thread announcing a new AI note-taking app. Constraints: tweet 1 must be a hook (no product name), tweet 5 must include a CTA link placeholder [LINK], no tweet over 240 characters, no hype words (revolutionary, game-changer), target audience is busy consultants. The prompt should produce all 5 tweets in one response, numbered 1-5."
+  },
+  {
+    "id": "problem-6",
+    "title": "Security review prompt chain",
+    "difficulty": "advanced",
+    "problem_type": "prompt_only",
+    "approx_tokens": 350,
+    "problem_statement": "You are designing a prompt for an LLM to review a pull request diff for common security issues (SQL injection, XSS, hardcoded secrets, insecure deserialization). The reviewer LLM has no access to the full codebase — only the diff and a short PR description. Write a single prompt that: assigns a security-reviewer role, lists what to check, defines severity levels (critical / high / medium / low), requires output as a markdown table with columns file, line, issue, severity, recommendation, and instructs the model to say insufficient context rather than guess when the diff alone is not enough. The problem domain is a Node.js Express API."
+  },
+  {
+    "id": "build-1",
+    "title": "SaaS landing page",
+    "difficulty": "intermediate",
+    "problem_type": "static_web",
+    "approx_tokens": 180,
+    "problem_statement": "Build a landing page for an AI note-taking app targeting busy consultants. Must include: a hero section with headline and CTA button, 3 feature cards, a pricing table with 2 tiers, and a contact form (name, email, message). The page must be mobile-responsive with clean modern styling.",
+    "acceptance_criteria": ["hero section", "3 feature cards", "pricing table", "contact form", "mobile-responsive", "CTA button"]
+  },
+  {
+    "id": "build-2",
+    "title": "React todo app",
+    "difficulty": "intermediate",
+    "problem_type": "react_spa",
+    "approx_tokens": 200,
+    "problem_statement": "Build a todo app using React. Users must be able to: add a new task, mark tasks complete, delete tasks, and filter by All / Active / Completed. Show a task count. Use clean, minimal styling.",
+    "acceptance_criteria": ["add task", "mark complete", "delete task", "filter All/Active/Completed", "task count"]
+  },
+  {
+    "id": "build-3",
+    "title": "Task management REST API",
+    "difficulty": "advanced",
+    "problem_type": "backend_api",
+    "approx_tokens": 220,
+    "problem_statement": "Build a REST API for task management. Required endpoints: GET /tasks (list all), POST /tasks (create), PUT /tasks/:id (update), DELETE /tasks/:id (delete). Each task has: id, title, completed (boolean). Include basic input validation and appropriate HTTP status codes.",
+    "acceptance_criteria": ["GET /tasks", "POST /tasks", "PUT /tasks/:id", "DELETE /tasks/:id", "input validation", "HTTP status codes"]
+  }
+]

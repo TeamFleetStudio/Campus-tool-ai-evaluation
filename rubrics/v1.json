@@ -1,0 +1,46 @@
+{
+  "version": "v1",
+  "criteria": [
+    {
+      "id": "problem_alignment",
+      "weight": 0.25,
+      "name": "Problem Alignment",
+      "description": "Does the prompt address the actual task in the problem statement? A generic prompt that could apply to any task scores low."
+    },
+    {
+      "id": "specificity",
+      "weight": 0.2,
+      "name": "Specificity",
+      "description": "Constraints, context, desired output format, edge cases, and audience are specified where relevant."
+    },
+    {
+      "id": "clarity",
+      "weight": 0.15,
+      "name": "Clarity",
+      "description": "Instructions are unambiguous with no contradictory asks."
+    },
+    {
+      "id": "structure",
+      "weight": 0.15,
+      "name": "Structure",
+      "description": "Logical organization: role, task, constraints, and output format are clearly separated."
+    },
+    {
+      "id": "actionability",
+      "weight": 0.15,
+      "name": "Actionability",
+      "description": "An LLM could execute the prompt without guessing missing details."
+    },
+    {
+      "id": "technique",
+      "weight": 0.1,
+      "name": "Technique",
+      "description": "Effective prompting patterns (examples, delimiters, step-by-step) without unnecessary bloat."
+    }
+  ],
+  "scale": {
+    "0": "Missing or completely inadequate",
+    "5": "Adequate but incomplete",
+    "10": "Excellent, comprehensive"
+  }
+}

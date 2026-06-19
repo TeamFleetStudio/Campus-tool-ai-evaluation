@@ -1,0 +1,313 @@
+{
+  "name": "AI Talent Summit - Final Score (MCQ 40% + Prompting 60%)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "f1000001-0001-4000-8000-000000000001",
+      "name": "Manual Test",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ai-talent-summit/final-score",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "f1000001-0001-4000-8000-000000000002",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        80
+      ],
+      "webhookId": "b8f2c4e1-9a3d-4f7e-b2c1-0d5e8f3a6b9c"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"email\": {{ JSON.stringify($json.body?.email ?? $json.email ?? 'aarun+test1@fleetstudio.com') }},\n  \"name\": {{ JSON.stringify($json.body?.name ?? $json.name ?? '') }},\n  \"round\": {{ JSON.stringify($json.body?.round ?? $json.round ?? 'round_1') }},\n  \"testScheduleId\": {{ JSON.stringify($json.body?.testScheduleId ?? $json.testScheduleId ?? '6a33a3a95f1bbf5aec52f319') }},\n  \"previous_rounds\": {{ JSON.stringify($json.body?.previous_rounds ?? $json.previous_rounds ?? []) }},\n  \"api_base_url\": {{ JSON.stringify($json.body?.api_base_url ?? $json.api_base_url ?? 'https://YOUR_API_PUBLIC_URL') }},\n  \"problem_statement\": {{ JSON.stringify($json.body?.problem_statement ?? $json.problem_statement ?? $json.body?.questions?.[0]?.description ?? ($json.body?.questions?.[0]?.title ? $json.body.questions[0].title + '. ' + ($json.body.questions[0].description || '') : 'Build a todo app using React. Users must be able to: add a new task, mark tasks complete, delete tasks, and filter by All / Active / Completed. Show a task count. Use clean, minimal styling.')) }},\n  \"user_prompt\": {{ JSON.stringify($json.body?.user_prompt ?? $json.user_prompt ?? $json.body?.questions?.[0]?.user_prompt ?? 'You are a React developer. Build a todo app using React (CDN in index.html). Features: text input + Add button, checkbox to complete (strikethrough), delete button, filter tabs All/Active/Completed, active task count. useState for state. Clean minimal CSS. Files: index.html + App component.') }},\n  \"problem_type\": {{ JSON.stringify($json.body?.problem_type ?? $json.problem_type ?? 'react_spa') }},\n  \"acceptance_criteria\": {{ JSON.stringify($json.body?.acceptance_criteria ?? $json.acceptance_criteria ?? ['add task', 'mark complete', 'delete task', 'filter All/Active/Completed', 'task count']) }},\n  \"pass_threshold\": {{ $json.body?.pass_threshold ?? $json.pass_threshold ?? 50 }},\n  \"overall_pass_threshold\": {{ $json.body?.overall_pass_threshold ?? $json.overall_pass_threshold ?? 50 }}\n}",
+        "options": {}
+      },
+      "id": "f1000001-0001-4000-8000-000000000003",
+      "name": "Normalize Input",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        280,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://evolve-api2.fsgarage.in/auth/login",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"username\": \"YOUR_EVOLVE_ADMIN_EMAIL\",\n  \"password\": \"YOUR_EVOLVE_ADMIN_PASSWORD\"\n}",
+        "options": {}
+      },
+      "id": "f1000001-0001-4000-8000-000000000004",
+      "name": "Evolve Admin Login",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        520,
+        -40
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://evolve-api2.fsgarage.in/test/candidates/filter?testScheduleId={{ $('Normalize Input').item.json.testScheduleId }}&email={{ encodeURIComponent($('Normalize Input').item.json.email) }}&isCompleted=true",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.accessToken }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f1000001-0001-4000-8000-000000000005",
+      "name": "Fetch MCQ Score",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        760,
+        -40
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst input = $('Normalize Input').first().json;\n\nlet candidate = data;\nif (Array.isArray(data)) candidate = data[0];\nif (data?.data && Array.isArray(data.data)) candidate = data.data[0];\nif (data?.candidates && Array.isArray(data.candidates)) candidate = data.candidates[0];\nif (data?.content && Array.isArray(data.content)) candidate = data.content[0];\nif (data?.items && Array.isArray(data.items)) candidate = data.items[0];\n\nif (!candidate) {\n  throw new Error(\n    'No MCQ candidate found for email=' + input.email +\n    ' scheduleId=' + input.testScheduleId +\n    '. Raw: ' + JSON.stringify(data).slice(0, 800)\n  );\n}\n\nconst scoreFields = [\n  'score', 'totalScore', 'percentage', 'marks', 'mcqScore',\n  'testScore', 'overallScore', 'finalScore', 'obtainedMarks',\n  'totalMarks', 'percentile'\n];\n\nlet mcq_score = null;\nlet score_field = null;\n\nfor (const field of scoreFields) {\n  if (candidate[field] != null && candidate[field] !== '') {\n    mcq_score = Number(candidate[field]);\n    score_field = field;\n    break;\n  }\n}\n\nif (mcq_score == null && candidate.result?.score != null) {\n  mcq_score = Number(candidate.result.score);\n  score_field = 'result.score';\n}\nif (mcq_score == null && candidate.testResult?.score != null) {\n  mcq_score = Number(candidate.testResult.score);\n  score_field = 'testResult.score';\n}\nif (mcq_score == null && candidate.obtainedMarks != null && candidate.totalMarks != null) {\n  mcq_score = (Number(candidate.obtainedMarks) / Number(candidate.totalMarks)) * 100;\n  score_field = 'obtainedMarks/totalMarks';\n}\n\nif (mcq_score == null || Number.isNaN(mcq_score)) {\n  throw new Error(\n    'MCQ score field not found. Keys: ' + Object.keys(candidate).join(', ') +\n    ' Raw: ' + JSON.stringify(candidate).slice(0, 800)\n  );\n}\n\nif (mcq_score > 0 && mcq_score <= 1) mcq_score = mcq_score * 100;\nmcq_score = Math.round(mcq_score * 100) / 100;\n\nreturn [{\n  json: {\n    email: input.email,\n    testScheduleId: input.testScheduleId,\n    mcq_score,\n    score_field,\n    mcq_raw: candidate\n  }\n}];"
+      },
+      "id": "f1000001-0001-4000-8000-000000000006",
+      "name": "Extract MCQ Score",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        -40
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Normalize Input').item.json.api_base_url }}/v1/evaluate/build/direct",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"problem_statement\": {{ JSON.stringify($('Normalize Input').item.json.problem_statement) }},\n  \"user_prompt\": {{ JSON.stringify($('Normalize Input').item.json.user_prompt) }},\n  \"problem_type\": {{ JSON.stringify($('Normalize Input').item.json.problem_type) }},\n  \"acceptance_criteria\": {{ JSON.stringify($('Normalize Input').item.json.acceptance_criteria) }}\n}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "ngrok-skip-browser-warning",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "id": "f1000001-0001-4000-8000-000000000007",
+      "name": "Build Evaluation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        520,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "f1000001-0001-4000-8000-000000000008",
+      "name": "Wait For Both",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        1240,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const mcq = $('Extract MCQ Score').first().json;\nconst build = $('Build Evaluation').first().json;\nconst input = $('Normalize Input').first().json;\n\nconst SCHEDULE_ROUND_MAP = {\n  '6a33a3a95f1bbf5aec52f319': 'round_1'\n};\n\nfunction recommendationFor(score, allRoundsPassed) {\n  if (!allRoundsPassed) return 'Not Recommended';\n  if (score >= 80) return 'Strong Recommend';\n  if (score >= 65) return 'Recommend';\n  if (score >= 50) return 'Borderline';\n  return 'Not Recommended';\n}\n\nconst prompting_combined_score = Number(build.combined_score);\nif (Number.isNaN(prompting_combined_score)) {\n  throw new Error('Build evaluation missing combined_score. Raw: ' + JSON.stringify(build).slice(0, 500));\n}\n\nconst mcq_score = Number(mcq.mcq_score);\nconst mcq_weighted = Math.round(0.40 * mcq_score * 100) / 100;\nconst prompting_weighted = Math.round(0.60 * prompting_combined_score * 100) / 100;\nconst round_score = Math.round((mcq_weighted + prompting_weighted) * 100) / 100;\n\nconst pass_threshold = Number(input.pass_threshold ?? 50);\nconst round_passed = round_score >= pass_threshold;\nconst round_status = round_passed ? 'pass' : 'fail';\n\nconst roundId = input.round || SCHEDULE_ROUND_MAP[input.testScheduleId] || 'round_1';\n\nconst current_round = {\n  round: roundId,\n  testScheduleId: input.testScheduleId,\n  mcq_score,\n  mcq_weighted,\n  prompting_combined_score,\n  prompting_weighted,\n  round_score,\n  prompt_score: build.prompt_score,\n  output_score: build.output_score,\n  pass_threshold,\n  passed: round_passed,\n  status: round_status,\n  evaluation_id: build.evaluation_id,\n  problem_type: build.problem_type\n};\n\nconst previous = Array.isArray(input.previous_rounds) ? input.previous_rounds : [];\nconst otherRounds = previous.filter((r) => r.round !== roundId);\nconst round_scores = [...otherRounds, current_round];\n\nconst overall_score = Math.round(\n  round_scores.reduce((sum, r) => sum + Number(r.round_score || 0), 0) / round_scores.length * 100\n) / 100;\n\nconst rounds_passed = round_scores.filter((r) => r.passed === true || r.status === 'pass').length;\nconst rounds_failed = round_scores.length - rounds_passed;\nconst all_rounds_passed = rounds_failed === 0;\n\nconst overall_pass_threshold = Number(input.overall_pass_threshold ?? 50);\nconst overall_passed = overall_score >= overall_pass_threshold && all_rounds_passed;\nconst overall_status = overall_passed ? 'pass' : 'fail';\n\nconst recommendation = recommendationFor(overall_score, all_rounds_passed);\n\nreturn [{\n  json: {\n    email: input.email,\n    name: input.name || null,\n    candidate: {\n      email: input.email,\n      name: input.name || null\n    },\n    current_round,\n    round_scores,\n    round_summary: round_scores.map((r) => ({\n      round: r.round,\n      round_score: r.round_score,\n      mcq_score: r.mcq_score,\n      prompting_combined_score: r.prompting_combined_score,\n      status: r.status,\n      passed: r.passed === true || r.status === 'pass'\n    })),\n    overall: {\n      score: overall_score,\n      status: overall_status,\n      passed: overall_passed,\n      pass_threshold: overall_pass_threshold,\n      rounds_completed: round_scores.length,\n      rounds_passed,\n      rounds_failed\n    },\n    recommendation,\n    ranking: {\n      note: 'Sort all candidates by overall.score descending for leaderboard rank',\n      sort_key: 'overall.score'\n    },\n    final_score: round_score,\n    status: round_status,\n    passed: round_passed,\n    pass_threshold,\n    mcq_score,\n    mcq_weighted,\n    prompting_combined_score,\n    prompting_weighted,\n    evaluation_id: build.evaluation_id,\n    problem_type: build.problem_type,\n    breakdown: {\n      mcq_pct: 40,\n      prompting_pct: 60,\n      formula: 'round_score = (0.40 x mcq) + (0.60 x prompting)',\n      overall_formula: 'average of all round_score values',\n      pass_rule: 'round pass if round_score >= pass_threshold; overall pass if all rounds pass and overall.score >= overall_pass_threshold'\n    }\n  }\n}];"
+      },
+      "id": "f1000001-0001-4000-8000-000000000009",
+      "name": "Compute Final Score",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1480,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "f1000001-0001-4000-8000-00000000000a",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1720,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## AI Talent Summit - Final Score\n\nFormula: final = (0.40 x MCQ) + (0.60 x prompting combined_score)\n\n### Evolve (two different emails)\n- **Evolve Admin Login:** YOUR_EVOLVE_ADMIN_EMAIL (API admin only — set in Evolve Admin Login node)\n- **Fetch MCQ filter:** email = candidate from webhook payload\n\nDo NOT use candidate email for admin login.\n\nRound 1 schedule: 6a33a3a95f1bbf5aec52f319\n\napi_base_url default: https://YOUR_API_PUBLIC_URL\n\n### Webhook for other team (MUST be Active)\nProduction: https://agent.fsgarage.in/webhook/ai-talent-summit/final-score\nNOT webhook-test. Toggle Active ON, then deactivate+reactivate if you see could not be started.\n\nIf login fails with Multiple logins not allowed: deactivate other Evolve workflows or ask team for API service account.",
+        "height": 320,
+        "width": 400
+      },
+      "id": "f1000001-0001-4000-8000-00000000000b",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -460,
+        -40
+      ]
+    }
+  ],
+  "connections": {
+    "Manual Test": {
+      "main": [
+        [
+          {
+            "node": "Normalize Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Input": {
+      "main": [
+        [
+          {
+            "node": "Evolve Admin Login",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build Evaluation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evolve Admin Login": {
+      "main": [
+        [
+          {
+            "node": "Fetch MCQ Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch MCQ Score": {
+      "main": [
+        [
+          {
+            "node": "Extract MCQ Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract MCQ Score": {
+      "main": [
+        [
+          {
+            "node": "Wait For Both",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Evaluation": {
+      "main": [
+        [
+          {
+            "node": "Wait For Both",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Wait For Both": {
+      "main": [
+        [
+          {
+            "node": "Compute Final Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Final Score": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "Manual Test": [
+      {
+        "email": "aarun+test1@fleetstudio.com",
+        "testScheduleId": "6a33a3a95f1bbf5aec52f319",
+        "problem_statement": "Build a todo app using React. Users must be able to: add a new task, mark tasks complete, delete tasks, and filter by All / Active / Completed. Show a task count. Use clean, minimal styling.",
+        "user_prompt": "You are a React developer. Build a todo app using React (CDN in index.html). Features: text input + Add button, checkbox to complete (strikethrough), delete button, filter tabs All/Active/Completed, active task count. useState for state. Clean minimal CSS.",
+        "problem_type": "react_spa",
+        "acceptance_criteria": ["add task", "mark complete", "delete task", "filter All/Active/Completed", "task count"]
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

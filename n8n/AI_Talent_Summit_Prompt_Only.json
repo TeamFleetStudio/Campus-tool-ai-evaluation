@@ -1,0 +1,113 @@
+{
+  "name": "AI Talent Summit - Prompt Only Evaluation",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "c3000001-0001-4000-8000-000000000001",
+      "name": "Manual Test",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "api-url",
+              "name": "api_base_url",
+              "value": "https://YOUR_API_PUBLIC_URL",
+              "type": "string"
+            },
+            {
+              "id": "ps",
+              "name": "problem_statement",
+              "value": "A customer emailed saying their subscription was charged twice. Write a prompt that instructs an LLM to draft a professional, empathetic reply.",
+              "type": "string"
+            },
+            {
+              "id": "up",
+              "name": "user_prompt",
+              "value": "You are a senior customer support specialist. Draft a reply acknowledging the duplicate charge, explain refund steps within 3-5 business days, and ask for the transaction ID. Tone: calm, empathetic. Max 150 words.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c3000001-0001-4000-8000-000000000002",
+      "name": "Input",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [240, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.api_base_url }}/v1/evaluate/direct",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"problem_statement\": {{ JSON.stringify($json.problem_statement) }},\n  \"user_prompt\": {{ JSON.stringify($json.user_prompt) }}\n}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "ngrok-skip-browser-warning",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "c3000001-0001-4000-8000-000000000003",
+      "name": "Prompt Evaluation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [500, 0]
+    },
+    {
+      "parameters": {
+        "content": "## Prompt-Only Evaluation\n\nSingle OpenAI call — scores prompt craft only.\n\n~$0.01 per evaluation\n\nRequires FastAPI running on api_base_url",
+        "height": 160,
+        "width": 320
+      },
+      "id": "c3000001-0001-4000-8000-000000000004",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-340, -20]
+    }
+  ],
+  "connections": {
+    "Manual Test": {
+      "main": [
+        [
+          {
+            "node": "Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input": {
+      "main": [
+        [
+          {
+            "node": "Prompt Evaluation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

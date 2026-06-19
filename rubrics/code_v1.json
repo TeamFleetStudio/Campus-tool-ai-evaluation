@@ -1,0 +1,40 @@
+{
+  "version": "code_v1",
+  "criteria": [
+    {
+      "id": "requirements_met",
+      "weight": 0.35,
+      "name": "Requirements Met",
+      "description": "Does the generated code include all required features from the problem statement and acceptance criteria?"
+    },
+    {
+      "id": "functional_correctness",
+      "weight": 0.25,
+      "name": "Functional Correctness",
+      "description": "Would the code likely run without errors? Is the logic sound for the stated requirements?"
+    },
+    {
+      "id": "code_structure",
+      "weight": 0.2,
+      "name": "Code Structure",
+      "description": "Clean organization, sensible naming, appropriate separation of concerns."
+    },
+    {
+      "id": "ui_completeness",
+      "weight": 0.1,
+      "name": "UI Completeness",
+      "description": "For web types: layout, styling, and visual structure are present and coherent. For backend: N/A aspects score based on API surface completeness."
+    },
+    {
+      "id": "best_practices",
+      "weight": 0.1,
+      "name": "Best Practices",
+      "description": "Follows basic best practices: accessibility hints for web, input validation for APIs, no obvious security issues."
+    }
+  ],
+  "scale": {
+    "0": "Missing or completely inadequate",
+    "5": "Adequate but incomplete",
+    "10": "Excellent, comprehensive"
+  }
+}

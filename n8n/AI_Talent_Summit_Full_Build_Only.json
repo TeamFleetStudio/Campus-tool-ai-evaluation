@@ -1,0 +1,125 @@
+{
+  "name": "AI Talent Summit - Full Build Evaluation",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "b2000001-0001-4000-8000-000000000001",
+      "name": "Manual Test",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "api-url",
+              "name": "api_base_url",
+              "value": "https://YOUR_API_PUBLIC_URL",
+              "type": "string"
+            },
+            {
+              "id": "ps",
+              "name": "problem_statement",
+              "value": "Build a landing page for an AI note-taking app. Include hero, 3 features, pricing, contact form.",
+              "type": "string"
+            },
+            {
+              "id": "up",
+              "name": "user_prompt",
+              "value": "Create a responsive HTML landing page with hero CTA, 3 feature cards, 2-tier pricing, contact form.",
+              "type": "string"
+            },
+            {
+              "id": "pt",
+              "name": "problem_type",
+              "value": "static_web",
+              "type": "string"
+            },
+            {
+              "id": "ac",
+              "name": "acceptance_criteria",
+              "value": "={{ [\"hero section\", \"3 feature cards\", \"pricing table\", \"contact form\", \"mobile-responsive\"] }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b2000001-0001-4000-8000-000000000002",
+      "name": "Input",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [240, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.api_base_url }}/v1/evaluate/build/direct",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"problem_statement\": {{ JSON.stringify($json.problem_statement) }},\n  \"user_prompt\": {{ JSON.stringify($json.user_prompt) }},\n  \"problem_type\": {{ JSON.stringify($json.problem_type) }},\n  \"acceptance_criteria\": {{ JSON.stringify($json.acceptance_criteria) }}\n}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "ngrok-skip-browser-warning",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "id": "b2000001-0001-4000-8000-000000000003",
+      "name": "Full Build Evaluation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [500, 0]
+    },
+    {
+      "parameters": {
+        "content": "## Full Build Flow (3 steps)\n\n1. Prompt Judge → prompt_score\n2. Code Generator → generated_code\n3. Code Judge → output_score\n\ncombined_score = 40% prompt + 60% output\n\nRequires API at api_base_url (default host.docker.internal:8000)",
+        "height": 220,
+        "width": 360
+      },
+      "id": "b2000001-0001-4000-8000-000000000004",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-380, -40]
+    }
+  ],
+  "connections": {
+    "Manual Test": {
+      "main": [
+        [
+          {
+            "node": "Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input": {
+      "main": [
+        [
+          {
+            "node": "Full Build Evaluation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

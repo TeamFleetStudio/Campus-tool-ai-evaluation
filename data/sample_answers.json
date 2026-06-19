@@ -1,0 +1,52 @@
+[
+  {
+    "problem_id": "problem-1",
+    "label": "strong",
+    "user_prompt": "You are a senior customer support specialist at a SaaS company.\n\nTask: Draft a reply email to a customer who reports being charged twice for their subscription this month. They want a refund for the duplicate charge and assurance this will not happen again.\n\nRequirements:\n- Tone: calm, empathetic, professional — never defensive or dismissive\n- Acknowledge the duplicate charge and apologize for the inconvenience\n- Explain the refund process and expected timeline (3-5 business days)\n- Ask for: transaction ID or last 4 digits of card, and the date of both charges\n- Confirm we will investigate the billing system to prevent recurrence\n- Max length: 150 words\n- Do NOT admit legal liability or promise outcomes we cannot guarantee\n\nOutput: Return only the email body, ready to send."
+  },
+  {
+    "problem_id": "problem-1",
+    "label": "weak",
+    "user_prompt": "Write a professional email to a customer about their billing issue."
+  },
+  {
+    "problem_id": "problem-2",
+    "label": "strong",
+    "user_prompt": "You are a meeting-notes analyst.\n\nI will paste a raw transcript from a 30-minute product standup below. Extract structured information and return ONLY valid JSON with this schema:\n\n{\n  \"summary\": \"2-3 sentence overview\",\n  \"decisions\": [\"decision 1\", ...],\n  \"action_items\": [{\"owner\": \"name or UNKNOWN\", \"task\": \"...\", \"due_date\": \"YYYY-MM-DD or null\"}],\n  \"open_questions\": [\"question 1\", ...]\n}\n\nRules:\n- If an owner is unclear from context, set owner to \"UNKNOWN\" and add a note in open_questions\n- If due_date is not mentioned, use null — do not invent dates\n- Ignore crosstalk and filler; focus on features, blockers, and action items\n- Do not include markdown or explanation outside the JSON\n\n<<<TRANSCRIPT>>>\n[paste transcript here]\n<<<END TRANSCRIPT>>>"
+  },
+  {
+    "problem_id": "problem-3",
+    "label": "strong",
+    "user_prompt": "You are an expert Python debugger.\n\nBelow is a buggy function that should return the top N most frequent words in a string (case-insensitive, punctuation ignored). Analyze it and respond in four sections:\n\n1. **Bug identification** — name the specific bug\n2. **Why it fails** — explain with an example input that produces wrong output\n3. **Corrected code** — provide the fixed function only, in a Python code block\n4. **Test cases** — two unit-test-style inputs that would have caught this bug\n\nDo not rewrite unrelated code. Focus only on the function provided.\n\n<<<BUGGY CODE>>>\n[paste code here]\n<<<END CODE>>>"
+  },
+  {
+    "problem_id": "problem-4",
+    "label": "strong",
+    "user_prompt": "You are a data analyst preparing a briefing for a non-technical CEO.\n\nI will provide a CSV with 12 months of SaaS metrics: MRR, churn_rate, new_signups, support_tickets, NPS.\n\nWrite a one-page executive summary (max 400 words) that:\n- Highlights the top 3 trends across the year\n- Specifically calls out the Q3 churn spike as a concern requiring attention\n- Lists 2-3 investigative questions (not solutions) the leadership team should explore\n- Uses plain language — no jargon (avoid terms like cohort, ARR unless explained)\n\nIf any month has missing or anomalous values (e.g. NPS of 0 or null), note the gap explicitly rather than interpolating or guessing.\n\n<<<CSV DATA>>>\n[paste CSV here]\n<<<END CSV>>>"
+  },
+  {
+    "problem_id": "problem-5",
+    "label": "strong",
+    "user_prompt": "You are a social media copywriter targeting busy management consultants.\n\nGenerate a 5-tweet thread announcing a new AI note-taking app. Return exactly 5 tweets, numbered 1-5.\n\nConstraints:\n- Tweet 1: Hook only — do NOT mention the product name\n- Tweet 5: Must end with CTA placeholder [LINK]\n- Each tweet: max 240 characters\n- Forbidden words: revolutionary, game-changer, disruptive, cutting-edge\n- Tone: practical, time-saving, no hype\n- Audience: consultants who live in back-to-back meetings\n\nOutput format:\n1. [tweet text]\n2. [tweet text]\n...\n5. [tweet text]"
+  },
+  {
+    "problem_id": "problem-6",
+    "label": "strong",
+    "user_prompt": "You are a senior application security engineer reviewing a Node.js Express API pull request.\n\nYou have ONLY the PR description and diff below — no access to the full codebase.\n\nReview for: SQL injection, XSS, hardcoded secrets/credentials, insecure deserialization, missing input validation, and unsafe dependency usage.\n\nOutput a markdown table with columns: file | line | issue | severity | recommendation\n\nSeverity levels: critical | high | medium | low\n\nRules:\n- If the diff alone does not provide enough context to confirm an issue, write \"insufficient context\" in the issue column — do NOT speculate\n- Cite specific line numbers from the diff when possible\n- If no issues found, return a table with one row: \"No issues identified\" with severity \"low\"\n\n<<<PR DESCRIPTION>>>\n[paste description]\n<<<END DESCRIPTION>>>\n\n<<<DIFF>>>\n[paste diff]\n<<<END DIFF>>>"
+  },
+  {
+    "problem_id": "build-1",
+    "label": "strong",
+    "user_prompt": "You are an expert frontend developer.\n\nBuild a complete, self-contained landing page in a single index.html file for an AI note-taking app called NoteFlow, targeting busy consultants.\n\nRequirements:\n- Hero: compelling headline, subtext, and a primary CTA button \"Start Free Trial\"\n- Features: exactly 3 feature cards with icons (use emoji or simple CSS), title, and description\n- Pricing: table with 2 tiers (Free and Pro) showing price and key features\n- Contact form: fields for name, email, message, and a submit button\n- Styling: modern, clean, mobile-responsive using CSS flexbox/grid\n- Colors: professional blue/white palette\n- All CSS inline in a <style> tag, minimal JS only if needed\n\nOutput production-ready HTML. No placeholder lorem text in headings."
+  },
+  {
+    "problem_id": "build-2",
+    "label": "strong",
+    "user_prompt": "You are a React developer.\n\nBuild a todo app using React (CDN links in index.html are fine — no build step).\n\nFeatures:\n- Text input + Add button to create tasks\n- Each task: checkbox to mark complete (strikethrough when done), delete button\n- Filter tabs: All, Active, Completed\n- Show count of remaining active tasks\n- Clean minimal CSS\n\nFiles: index.html (with React CDN), App.jsx or inline component.\nUse useState for state management. Fully functional."
+  },
+  {
+    "problem_id": "build-3",
+    "label": "strong",
+    "user_prompt": "You are a backend API developer.\n\nBuild a REST API for task management in Python using FastAPI (single main.py file).\n\nEndpoints:\n- GET /tasks — return all tasks\n- POST /tasks — create task (body: title, completed optional default false)\n- PUT /tasks/{id} — update task title or completed status\n- DELETE /tasks/{id} — delete task\n\nTask model: id (int), title (str), completed (bool)\nUse in-memory storage (list or dict).\nValidate: title must not be empty, return 400 for bad input, 404 if task not found.\nInclude uvicorn run block at bottom."
+  }
+]
