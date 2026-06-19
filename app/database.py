@@ -86,7 +86,11 @@ class Evaluation(Base):
     assignment = relationship("Assignment", back_populates="evaluations")
 
 
-engine = create_engine(settings.database_url, connect_args={"check_same_thread": False})
+_is_sqlite = settings.database_url.startswith("sqlite")
+engine = create_engine(
+    settings.database_url,
+    connect_args={"check_same_thread": False} if _is_sqlite else {},
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
@@ -96,7 +100,6 @@ def init_db() -> None:
 
 
 def _migrate_schema() -> None:
-    """Add new columns to existing SQLite tables if missing."""
     insp = inspect(engine)
     with engine.begin() as conn:
         if insp.has_table("problems"):
