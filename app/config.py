@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     problem_statement_max_tokens: int = 1500
     user_prompt_max_tokens: int = 8000
     problem_statement_min_tokens: int = 10
-    user_prompt_min_tokens: int = 20
+    user_prompt_min_tokens: int = 0
     prompt_score_weight: float = 0.4
     output_score_weight: float = 0.6
 
